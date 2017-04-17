@@ -18,7 +18,7 @@ config_file_path = os.path.join(script_directory, 'Config.ini')
 
 def main():
     config = ConfigHandler()                                                # sets up a config object
-    killmail_status = 0
+
 
     response = requests.get('https://redisq.zkillboard.com/listen.php?queID=testRunning1')
     response.encoding = 'utf-8'
