@@ -178,33 +178,19 @@ class SlackMessage:
         self.config = config
 
     def determine_if_kill(self):
-        is_kill = None
-        for attacker in self.kill.get_attackers_info():
-            if attacker['corporation']['id'] == self.config.get_corporation_id():
-                is_kill = True
-        if self.config.get_corporation_id() == self.kill.get_victim_corporation_id:
-            is_kill = False
+        is_kill = True
         return is_kill
 
     def get_message_color(self):
-        if self.config.get_corporation_id() == self.kill.get_victim_corporation_id():
-            color = self.config.get_slack_loss_color()
-        else:
-            color = self.config.get_slack_kill_color()
+        color = self.config.get_slack_kill_color()
         return color
 
     def get_message_icon_emoji(self):
-        if self.config.get_corporation_id() == self.kill.get_victim_corporation_id():
-            icon_emoji = self.config.get_slack_loss_emoji()
-        else:
-            icon_emoji = self.config.get_slack_kill_emoji()
+        icon_emoji = self.config.get_slack_kill_emoji()
         return icon_emoji
 
     def get_message_user_name(self):
-        if self.config.get_corporation_id() == self.kill.get_victim_corporation_id():
-            user_name = self.config.get_slack_loss_username()
-        else:
-            user_name = self.config.get_slack_kill_username()
+        user_name = self.config.get_slack_kill_username()
         return user_name
 
     def get_kill_description(self):
