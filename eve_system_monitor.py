@@ -19,18 +19,23 @@ config_file_path = os.path.join(script_directory, 'Config.ini')
 def main():
     config = ConfigHandler()                                                # sets up a config object
 
-    response = requests.get('https://redisq.zkillboard.com/listen.php?queID=systemMonitorTest')
+    url = 'https://redisq.zkillboard.com/listen.php?queID=systemMonitorTest&ttw=1'
+
+    response = requests.get(url)
     response.encoding = 'utf-8'
-    try:
-        json_data = response.json()
-    except:
-        print('Error at json_data = response.json()\nresponse information:')
-        print(response.text)
+    if response.status_code == 200:
+        try:
+            json_data = response.json()
+        except:
+            print('Error at json_data = response.json()\nresponse information:')
+            print(response.text)
+            sys.exit()
+
+        killmail = json_data['package']
+    else:
         sys.exit()
 
-    killmail = json_data['package']
-
-    while killmail != None:
+    while killmail is not None:
         kill = KillMail(killmail)
 
         if config.get_system_name() == kill.get_solar_system_name():
@@ -40,9 +45,13 @@ def main():
             requests.post(config.get_slack_web_hook(), data=encoded_slack_message)
             print('posted killmail')
 
-        response = requests.get('https://redisq.zkillboard.com/listen.php?queID=systemMonitorTest')
-        json_data = response.json()                                             # gets the json data in the response
-        killmail = json_data['package']
+        response = requests.get(url)
+        response.encoding = 'utf-8'
+        if response.status_code == 200:
+            json_data = response.json()  # gets the json data in the response
+            killmail = json_data['package']
+        else:
+            sys.exit()
 
 
 # Class KillMail allows for easy reading of the json data that is returned from the request.
@@ -124,7 +133,11 @@ class KillMail:
         return self.json_kill_mail['killmail']['killTime']
 
     def get_solar_system_name(self):
-        return self.json_kill_mail['killmail']['solarSystem']['name']
+        try:
+            return self.json_kill_mail['killmail']['solarSystem']['name']
+        except:
+            print("no system name")
+            return ""
 
     def get_victim_character_id(self):
         return self.json_kill_mail['killmail']['victim']['character']['id']
@@ -205,7 +218,6 @@ class SlackMessage:
     def get_kill_link(self):
         url = 'http://www.zkillboard.com/kill/' + str(self.kill.get_killmail_id()) + '/'
         return url
-
 
     def generate_slack_message(self):
         slack_message = {
@@ -337,5 +349,5 @@ class ConfigHandler:
         except:
             print('Error Getting loss_color From Config.ini')
 
-
-main()
+if __name__ == "__main__":
+    main()
