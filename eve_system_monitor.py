@@ -38,7 +38,7 @@ def main():
     while killmail is not None:
         kill = KillMail(killmail)
 
-        if config.get_system_name() == kill.get_solar_system_name():
+        if config.get_system_id() == kill.get_solar_system_id():
 
             slack_message = SlackMessage(kill, config)
             encoded_slack_message = slack_message.encode_slack_message()
@@ -137,6 +137,13 @@ class KillMail:
             return self.json_kill_mail['killmail']['solarSystem']['name']
         except:
             print("no system name")
+            return ""
+
+    def get_solar_system_id(self):
+        try:
+            return self.json_kill_mail['killmail']['solarSystem']['id']
+        except:
+            print("no system id")
             return ""
 
     def get_victim_character_id(self):
@@ -267,7 +274,7 @@ class ConfigHandler:
 
     def generate_config_file(self):
         self.config.add_section('General Settings')
-        self.config.set('General Settings', 'system_name', '')
+        self.config.set('General Settings', 'system_id', '')
 
         self.config.add_section('Slack Settings')
         self.config.set('Slack Settings', 'slack_web_hook', 'https://hooks.slack.com/services/')
@@ -295,9 +302,9 @@ class ConfigHandler:
         except:
             print('Error Reading Config File!')
 
-    def get_system_name(self):
+    def get_system_id(self):
         try:
-            return self.config.get('General Settings', 'system_name')
+            return self.config.get('General Settings', 'system_id')
         except:
             print('Error Getting system_name From Config.ini')
 
